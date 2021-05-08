@@ -1,5 +1,10 @@
+import random
+
+import torch
 from unityagents import UnityEnvironment
 import numpy as np
+
+from Agent import Agent
 
 
 def watch_agent(env: UnityEnvironment, brain_name: str, agent: Agent) -> None:
@@ -29,6 +34,10 @@ def watch_agent(env: UnityEnvironment, brain_name: str, agent: Agent) -> None:
 
 if __name__ == '__main__':
     env = UnityEnvironment(file_name='Reacher_Linux/Reacher.x86_64')
+
+    seed = 0
+    random.seed(0)
+    torch.manual_seed(seed)
 
     # get the default brain
     brain_name = env.brain_names[0]

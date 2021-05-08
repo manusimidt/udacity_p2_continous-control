@@ -29,7 +29,7 @@ Probably some issue between my cuda version and the pytorch version (0.4.0) that
 device = torch.device('cpu')
 
 
-class Agent():
+class Agent:
     """ This class represents the reinforcement learning agent """
 
     def __init__(self, state_size: int, action_size: int, hidden_sizes: [int] = (64,),
