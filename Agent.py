@@ -2,6 +2,7 @@ import numpy as np
 import random
 from collections import namedtuple, deque
 
+import copy
 from typing import Tuple
 
 from networks import ActorNetwork, CriticNetwork
@@ -37,6 +38,9 @@ class Agent:
                  buffer_size: int = 100000, batch_size: int = 64, update_rate: int = 5,
                  seed: int = int(random.random() * 100)):
         self.tau = tau
+        self.gamma = gamma
+
+        self.batch_size = batch_size
 
         self.actor_local = ActorNetwork(state_size, action_size).to(device)
         self.actor_target = ActorNetwork(state_size, action_size).to(device)
@@ -46,20 +50,37 @@ class Agent:
         self.critic_target = CriticNetwork(state_size, action_size).to(device)
         self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=lr)
 
-        pass
+        self.memory = ReplayBuffer(action_size, buffer_size, batch_size)
+        self.noise = OUNoise(action_size)
 
-    def step(self, state, action, reward, next_state):
-        pass
+    def step(self, experience: tuple):
+        """
+        :param experience: tuple consisting of (state, action, reward, next_state, done)
+        :return:
+        """
+        self.memory.add(*experience)
 
-    def act(self, state):
-        pass
+        if len(self.memory) > self.batch_size:
+            experiences = self.memory.sample()
+            self.learn(experiences)
 
-    def learn(self, experiences, gamma):
+    def act(self, state, add_noise: bool = True):
+        """ Actor uses the policy to act given a state """
+        state = torch.from_numpy(state).float()
+        self.actor_local.eval()
+        with torch.no_grad():
+            action = self.actor_local(state).cpu().data.numpy()
+        self.actor_local.train()
+        if add_noise:
+            action += self.noise.sample()
+        return np.clip(action, -1, 1)
+
+    def learn(self, experiences):
         pass
 
     def soft_update(self, local_model, target_model):
         for target_param, local_param in zip(target_model.parameters(), local_model.parameters()):
-            target_param.data.copy_(tau * local_param.data + (1.0 - self.tau) * target_param.data)
+            target_param.data.copy_(self.tau * local_param.data + (1.0 - self.tau) * target_param.data)
 
 
 class ReplayBuffer:
@@ -102,3 +123,26 @@ class ReplayBuffer:
     def __len__(self):
         """Return the current size of internal memory."""
         return len(self.memory)
+
+
+# Copied from https://github.com/udacity/deep-reinforcement-learning/blob/master/ddpg-pendulum/ddpg_agent.py
+class OUNoise:
+    """Ornstein-Uhlenbeck process."""
+
+    def __init__(self, size, mu=0., theta=0.15, sigma=0.2):
+        """Initialize parameters and noise process."""
+        self.mu = mu * np.ones(size)
+        self.theta = theta
+        self.sigma = sigma
+        self.reset()
+
+    def reset(self):
+        """Reset the internal state (= noise) to mean (mu)."""
+        self.state = copy.copy(self.mu)
+
+    def sample(self):
+        """Update internal state and return it as a noise sample."""
+        x = self.state
+        dx = self.theta * (self.mu - x) + self.sigma * np.array([random.random() for i in range(len(x))])
+        self.state = x + dx
+        return self.state
