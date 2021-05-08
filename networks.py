@@ -16,9 +16,12 @@ class ActorNetwork(nn.Module):
         self.fc1 = nn.Linear(in_features=input_size, out_features=fc1_size)
         self.fc2 = nn.Linear(in_features=fc1_size, out_features=fc2_size)
         self.fc3 = nn.Linear(in_features=fc2_size, out_features=output_size)
+        self.reset_weights()
 
     def forward(self, x):
-        pass
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        return F.tanh(self.fc3(x))
 
     def reset_weights(self):
         self.fc1.weight.data.uniform_(*hidden_init(self.fc1))
@@ -32,6 +35,4 @@ class CriticNetwork(nn.Module):
         pass
 
     def forward(self, x):
-        x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        return self.tanh(self.fc3(x))
+        pass

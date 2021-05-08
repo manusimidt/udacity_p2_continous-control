@@ -36,15 +36,30 @@ class Agent():
                  gamma: float = 0.99, lr: float = 0.001, tau: float = 0.001,
                  buffer_size: int = 100000, batch_size: int = 64, update_rate: int = 5,
                  seed: int = int(random.random() * 100)):
-        self.actor_local = ActorNetwork()
-        self.actor_target = ActorNetwork()
+        self.tau = tau
+
+        self.actor_local = ActorNetwork(state_size, action_size).to(device)
+        self.actor_target = ActorNetwork(state_size, action_size).to(device)
         self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=lr)
 
-        self.critic_local = CriticNetwork()
-        self.critic_target = CriticNetwork()
+        self.critic_local = CriticNetwork(state_size, action_size).to(device)
+        self.critic_target = CriticNetwork(state_size, action_size).to(device)
         self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=lr)
 
         pass
+
+    def step(self, state, action, reward, next_state):
+        pass
+
+    def act(self, state):
+        pass
+
+    def learn(self, experiences, gamma):
+        pass
+
+    def soft_update(self, local_model, target_model):
+        for target_param, local_param in zip(target_model.parameters(), local_model.parameters()):
+            target_param.data.copy_(tau * local_param.data + (1.0 - self.tau) * target_param.data)
 
 
 class ReplayBuffer:
