@@ -35,41 +35,37 @@ def watch_agent(env: UnityEnvironment, brain_name: str, agent: Agent) -> None:
     print(f"Agent achieved a score of {score}")
 
 
-def train_agent(env: UnityEnvironment, brain_name: str, agent: Agent, n_episodes: int,
-                eps_start=1.0, eps_cutoff: int = 2000, eps_end=0.01, eps_decay=0.995) -> []:
+def train_agent(env: UnityEnvironment, brain_name: str, agent: Agent, n_episodes: int, max_steps: int = 1500) -> []:
     """
     Trans the agent for n episodes
     :param env:
     :param brain_name:
     :param agent:
     :param n_episodes: number of episodes to train
-    :param eps_start: epsilon start value
-    :param eps_cutoff: after x episodes, immediately decrease epsilon to eps_end
-    :param eps_end: epsilon decay per episode
-    :param eps_decay: minimum value for epsilon (never stop exploring)
+    :param max_steps: max amount of steps
     :return: returns an array containing the score of every episode
     """
     scores: [int] = []
-    eps = eps_start
     # store the last 100 scores into a queue to check if the agent reached the goal
     scores_window = deque(maxlen=100)
 
     for i_episode in range(1, n_episodes + 1):
         # reset the environment
         env_info = env.reset(train_mode=True)[brain_name]
+
         state = env_info.vector_observations[0]
         score = 0
 
         # the environment will end the episode after n steps, thus no manual termination of the episode is needed
-        while True:
-            action: int = agent.act(state, eps)
+        for a in range(max_steps):
+            action: int = agent.act(state)
             env_info = env.step(action)[brain_name]
             next_state = env_info.vector_observations[0]
             reward = env_info.rewards[0]
             done = env_info.local_done[0]
             score += reward
 
-            agent.step(state, action, reward, next_state, done)
+            agent.step((state, action, reward, next_state, done))
 
             state = next_state
             if done:
@@ -78,21 +74,13 @@ def train_agent(env: UnityEnvironment, brain_name: str, agent: Agent, n_episodes
         scores_window.append(score)  # save most recent score
         scores.append(score)  # save most recent score
 
-        if i_episode >= eps_cutoff:
-            eps = eps_end
-        else:
-            eps = max(eps_end, eps_decay * eps)  # decrease epsilon
-
         if i_episode % 10 == 0:
-            print(f"""Episode {i_episode}:
-            Epsilon: {eps:.3f}
-            Average Score: {np.mean(scores_window):.2f}
-            """)
+            print(f"""Episode {i_episode}: Average Score: {np.mean(scores_window):.2f}""")
 
-        if np.mean(scores_window) >= 13.0:
+        if np.mean(scores_window) >= 30.0:
             print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.format(i_episode,
                                                                                          np.mean(scores_window)))
-            torch.save(agent.local_network.state_dict(), f'checkpoint-{np.mean(scores_window):.2f}.pth')
+            torch.save(agent.actor_local.state_dict(), 'checkpoint.pth')
             break
     return scores
 
@@ -129,23 +117,27 @@ def plot_scores(scores: [int], sma_window: int = 50) -> None:
 
 
 if __name__ == '__main__':
-    env = UnityEnvironment(file_name='Reacher_Linux/Reacher.x86_64')
+    _env = UnityEnvironment(file_name='Reacher_Linux/Reacher.x86_64')
 
+    # initialize seeds
     seed = 0
     random.seed(0)
     torch.manual_seed(seed)
 
     # get the default brain
-    brain_name = env.brain_names[0]
-    brain = env.brains[brain_name]
-    env_info = env.reset(train_mode=True)[brain_name]
-    num_agents = len(env_info.agents)
-    action_size = brain.vector_action_space_size
-    states = env_info.vector_observations
-    state_size = states.shape[1]
+    _brain_name = _env.brain_names[0]
+    _brain = _env.brains[_brain_name]
 
-    env_info = env.reset(train_mode=False)[brain_name]  # reset the environment
-    states = env_info.vector_observations  # get the current state (for each agent)
-    scores = np.zeros(num_agents)  # initialize the score (for each agent)
+    _action_size: int = 4
+    _state_size: int = 33
 
-    env.close()
+    _agent = Agent(_state_size, _action_size,
+                   gamma=0.992, lr=0.0005, tau=0.002,
+                   buffer_size=100000, batch_size=64, update_rate=10,
+                   seed=0)
+
+    scores = train_agent(_env, _brain_name, _agent, n_episodes=1000)
+    watch_agent(_env, _brain_name, _agent)
+    plot_scores(scores=scores)
+
+    _env.close()
