@@ -52,7 +52,7 @@ def train_agent(env: UnityEnvironment, brain_name: str, agent: Agent, n_episodes
     for i_episode in range(1, n_episodes + 1):
         # reset the environment
         env_info = env.reset(train_mode=True)[brain_name]
-
+        agent.reset()
         state = env_info.vector_observations[0]
         score = 0
 
@@ -132,11 +132,10 @@ if __name__ == '__main__':
     _state_size: int = 33
 
     _agent = Agent(_state_size, _action_size,
-                   gamma=0.992, lr=0.0005, tau=0.002,
-                   buffer_size=100000, batch_size=64, update_rate=10,
-                   seed=0)
+                   gamma=0.992, lr_actor=0.001, lr_critic=0.003, tau=0.002,
+                   buffer_size=100000, batch_size=64)
 
-    scores = train_agent(_env, _brain_name, _agent, n_episodes=1000)
+    scores = train_agent(_env, _brain_name, _agent, n_episodes=900)
     watch_agent(_env, _brain_name, _agent)
     plot_scores(scores=scores)
 

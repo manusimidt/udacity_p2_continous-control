@@ -33,10 +33,9 @@ device = torch.device('cpu')
 class Agent:
     """ This class represents the reinforcement learning agent """
 
-    def __init__(self, state_size: int, action_size: int, hidden_sizes: [int] = (64,),
-                 gamma: float = 0.99, lr: float = 0.001, tau: float = 0.001,
-                 buffer_size: int = 100000, batch_size: int = 64, update_rate: int = 5,
-                 seed: int = int(random.random() * 100)):
+    def __init__(self, state_size: int, action_size: int,
+                 gamma: float = 0.99, lr_actor: float = 0.001, lr_critic: float = 0.003, tau: float = 0.001,
+                 buffer_size: int = 100000, batch_size: int = 64):
         self.tau = tau
         self.gamma = gamma
 
@@ -44,11 +43,11 @@ class Agent:
 
         self.actor_local = ActorNetwork(state_size, action_size).to(device)
         self.actor_target = ActorNetwork(state_size, action_size).to(device)
-        self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=lr)
+        self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=lr_actor)
 
         self.critic_local = CriticNetwork(state_size, action_size).to(device)
         self.critic_target = CriticNetwork(state_size, action_size).to(device)
-        self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=lr)
+        self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=lr_critic)
 
         self.memory = ReplayBuffer(action_size, buffer_size, batch_size)
         self.noise = OUNoise(action_size)
@@ -94,13 +93,26 @@ class Agent:
         # endregion Update Critic
 
         # region Update actor
-        
-
+        # Compute actor loss
+        actions_predictions = self.actor_local.forward(states)
+        actor_loss = -self.critic_local.forward(states, actions_predictions).mean()
+        # Minimize actor loss
+        self.actor_optimizer.zero_grad()
+        actor_loss.backward()
+        self.actor_optimizer.step()
         # endregion Update actor
+
+        # region update target network
+        self.soft_update(self.critic_local, self.critic_target)
+        self.soft_update(self.actor_local, self.actor_target)
+        # endregion update target network
 
     def soft_update(self, local_model, target_model):
         for target_param, local_param in zip(target_model.parameters(), local_model.parameters()):
             target_param.data.copy_(self.tau * local_param.data + (1.0 - self.tau) * target_param.data)
+
+    def reset(self):
+        self.noise.reset()
 
 
 class ReplayBuffer:
