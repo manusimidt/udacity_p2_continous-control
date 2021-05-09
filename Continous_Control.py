@@ -20,7 +20,7 @@ def watch_agent(env: UnityEnvironment, brain_name: str, agent: Agent) -> None:
     score = 0  # initialize the score
 
     while True:
-        action = agent.act(state, epsilon=0.05)
+        action = agent.act(state)
         env_info = env.step(action)[brain_name]  # send the action to the environment
         next_state = env_info.vector_observations[0]  # get the next state
         reward = env_info.rewards[0]  # get the reward

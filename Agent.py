@@ -76,7 +76,27 @@ class Agent:
         return np.clip(action, -1, 1)
 
     def learn(self, experiences):
-        pass
+        # Q_targets = r + γ * critic_target(next_state, actor_target(next_state))
+        # the actor_target returns the next action, this next action is then used (with the state) to estimate
+        # the Q-value with the critic_target network
+
+        states, actions, rewards, next_states, dones = experiences
+
+        # region Update Critic
+        # Q_targets = r + γ * critic_target(next_state, actor_target(next_state))
+        q_targets = rewards + self.gamma * self.critic_target.forward(next_states,
+                                                                      self.actor_target.forward(next_states))
+        q_expected = self.critic_local.forward(states, actions)
+        critic_loss = F.mse_loss(q_expected, q_targets)
+        self.critic_optimizer.zero_grad()
+        critic_loss.backward()
+        self.critic_optimizer.step()
+        # endregion Update Critic
+
+        # region Update actor
+        
+
+        # endregion Update actor
 
     def soft_update(self, local_model, target_model):
         for target_param, local_param in zip(target_model.parameters(), local_model.parameters()):
