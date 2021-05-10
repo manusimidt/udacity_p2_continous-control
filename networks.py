@@ -31,17 +31,17 @@ class ActorNetwork(nn.Module):
 
 class CriticNetwork(nn.Module):
 
-    def __init__(self, input_size: int, output_size: int, fc1_size: int = 128, fc2_size: int = 128):
+    def __init__(self, input_size: int, action_size: int, fc1_size: int = 128, fc2_size: int = 128):
         super().__init__()
         self.fc1 = nn.Linear(in_features=input_size, out_features=fc1_size)
-        self.fc2 = nn.Linear(in_features=fc1_size, out_features=fc2_size)
-        self.fc3 = nn.Linear(in_features=fc2_size, out_features=output_size)
+        # add the input_size because we will insert the action vector in this layer
+        self.fc2 = nn.Linear(in_features=fc1_size + action_size, out_features=fc2_size)
+        self.fc3 = nn.Linear(in_features=fc2_size, out_features=1)
         self.reset_weights()
-        pass
-
+        
     def forward(self, state, action):
-        # todo: how should i insert the action here
         x = F.relu(self.fc1(state))
+        x = torch.cat((x, action.float()), dim=1)
         x = F.relu(self.fc2(x))
         return self.fc3(x)
 
