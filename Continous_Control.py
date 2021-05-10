@@ -132,8 +132,8 @@ if __name__ == '__main__':
     _state_size: int = 33
 
     _agent = Agent(_state_size, _action_size,
-                   gamma=0.992, lr_actor=0.001, lr_critic=0.003, tau=0.002,
-                   buffer_size=100000, batch_size=64)
+                   gamma=0.992, lr_actor=0.0002, lr_critic=0.0006, tau=0.002, weight_decay=0.0001,
+                   buffer_size=1000000, batch_size=128)
 
     scores = train_agent(_env, _brain_name, _agent, n_episodes=900)
     watch_agent(_env, _brain_name, _agent)

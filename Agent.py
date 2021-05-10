@@ -34,8 +34,20 @@ class Agent:
     """ This class represents the reinforcement learning agent """
 
     def __init__(self, state_size: int, action_size: int,
-                 gamma: float = 0.99, lr_actor: float = 0.001, lr_critic: float = 0.003, tau: float = 0.001,
+                 gamma: float = 0.99, lr_actor: float = 0.001, lr_critic: float = 0.003,
+                 weight_decay: float = 0.0001, tau: float = 0.001,
                  buffer_size: int = 100000, batch_size: int = 64):
+        """
+        :param state_size: how many states does the agent get as input (input size of neural networks)
+        :param action_size: from how many actions can the agent choose
+        :param gamma: discount factor
+        :param lr_actor: learning rate of the actor network
+        :param lr_critic: learning rate of the critic network
+        :param weight_decay:
+        :param tau: soft update parameter
+        :param buffer_size: size of replay buffer
+        :param batch_size: size of learning batch (mini-batch)
+        """
         self.tau = tau
         self.gamma = gamma
 
@@ -47,9 +59,10 @@ class Agent:
 
         self.critic_local = CriticNetwork(state_size, action_size).to(device)
         self.critic_target = CriticNetwork(state_size, action_size).to(device)
-        self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=lr_critic)
+        self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=lr_critic, weight_decay=weight_decay)
 
         self.memory = ReplayBuffer(action_size, buffer_size, batch_size)
+        # this would probably also work with Gaussian noise instead of Ornstein-Uhlenbeck process
         self.noise = OUNoise(action_size)
 
     def step(self, experience: tuple):
@@ -65,7 +78,7 @@ class Agent:
 
     def act(self, state, add_noise: bool = True):
         """ Actor uses the policy to act given a state """
-        state = torch.from_numpy(state).float()
+        state = torch.from_numpy(state).float().to(device)
         self.actor_local.eval()
         with torch.no_grad():
             action = self.actor_local(state).cpu().data.numpy()
@@ -82,10 +95,13 @@ class Agent:
         states, actions, rewards, next_states, dones = experiences
 
         # region Update Critic
-        # Q_targets = r + γ * critic_target(next_state, actor_target(next_state))
-        q_targets = rewards + self.gamma * self.critic_target.forward(next_states,
-                                                                      self.actor_target.forward(next_states))
+        actions_next = self.actor_target.forward(next_states)
+        q_targets_next = self.critic_target.forward(next_states, actions_next)
         q_expected = self.critic_local.forward(states, actions)
+
+        q_targets = rewards + (self.gamma * q_targets_next * (1 - dones))
+
+        # minimize the loss
         critic_loss = F.mse_loss(q_expected, q_targets)
         self.critic_optimizer.zero_grad()
         critic_loss.backward()
@@ -160,6 +176,7 @@ class ReplayBuffer:
 # Copied from https://github.com/udacity/deep-reinforcement-learning/blob/master/ddpg-pendulum/ddpg_agent.py
 class OUNoise:
     """Ornstein-Uhlenbeck process."""
+
 
     def __init__(self, size, mu=0., theta=0.15, sigma=0.2):
         """Initialize parameters and noise process."""
