@@ -96,8 +96,8 @@ class Agent:
 
         # region Update Critic
         actions_next = self.actor_target.forward(next_states)
-        q_targets_next = self.critic_target.forward(next_states, actions_next)
         q_expected = self.critic_local.forward(states, actions)
+        q_targets_next = self.critic_target.forward(next_states, actions_next)
 
         q_targets = rewards + (self.gamma * q_targets_next * (1 - dones))
 
@@ -105,6 +105,7 @@ class Agent:
         critic_loss = F.mse_loss(q_expected, q_targets)
         self.critic_optimizer.zero_grad()
         critic_loss.backward()
+        torch.nn.utils.clip_grad_norm_(self.critic_local.parameters(), 1)
         self.critic_optimizer.step()
         # endregion Update Critic
 
@@ -176,7 +177,6 @@ class ReplayBuffer:
 # Copied from https://github.com/udacity/deep-reinforcement-learning/blob/master/ddpg-pendulum/ddpg_agent.py
 class OUNoise:
     """Ornstein-Uhlenbeck process."""
-
 
     def __init__(self, size, mu=0., theta=0.15, sigma=0.2):
         """Initialize parameters and noise process."""
