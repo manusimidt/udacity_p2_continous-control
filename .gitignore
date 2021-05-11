@@ -1,6 +1,6 @@
 .idea
 
-*.log
+
 /__pycache__/
 __pycache__/
 
@@ -8,3 +8,4 @@ Reacher_Linux
 
 Reacher_Linux_1_Agent.zip
 Reacher_Linux_20_Agents.zip
+Reacher_Windows_x86_64

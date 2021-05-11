@@ -1,0 +1,60 @@
+C:\Users\manus\.conda\envs\drlnd\python.exe E:/Programming/python/udacity_p2_continous-control/Continous_Control.py
+INFO:unityagents:
+'Academy' started successfully!
+Unity Academy name: Academy
+        Number of Brains: 1
+        Number of External Brains : 1
+        Lesson number : 0
+        Reset Parameters :
+		goal_speed -> 1.0
+		goal_size -> 5.0
+Unity brain name: ReacherBrain
+        Number of Visual Observations (per agent): 0
+        Vector Observation space type: continuous
+        Vector Observation space size (per agent): 33
+        Number of stacked Vector Observation: 1
+        Vector Action space type: continuous
+        Vector Action space size (per agent): 4
+        Vector Action descriptions: , , ,
+ActorNetwork(
+  (fc1): Linear(in_features=33, out_features=128, bias=True)
+  (fc2): Linear(in_features=128, out_features=128, bias=True)
+  (fc3): Linear(in_features=128, out_features=4, bias=True)
+)
+CriticNetwork(
+  (fc1): Linear(in_features=33, out_features=128, bias=True)
+  (fc2): Linear(in_features=132, out_features=128, bias=True)
+  (fc3): Linear(in_features=128, out_features=1, bias=True)
+)
+Episode 10	avg Score: 0.76
+Episode 20	avg Score: 1.05
+Episode 30	avg Score: 1.94
+Episode 40	avg Score: 2.51
+Episode 50	avg Score: 3.19
+Episode 60	avg Score: 3.74
+Episode 70	avg Score: 4.80
+Episode 80	avg Score: 5.00
+Episode 90	avg Score: 5.73
+Episode 100	avg Score: 6.32
+Episode 110	avg Score: 7.02
+Episode 120	avg Score: 7.96
+Episode 130	avg Score: 8.62
+Episode 140	avg Score: 9.71
+Episode 150	avg Score: 10.65
+Episode 160	avg Score: 11.59
+Episode 170	avg Score: 11.86
+Episode 180	avg Score: 12.79
+Episode 190	avg Score: 13.72
+Episode 200	avg Score: 15.04
+Episode 210	avg Score: 16.60
+Episode 220	avg Score: 18.34
+Episode 230	avg Score: 20.22
+Episode 240	avg Score: 21.55
+Episode 250	avg Score: 23.06
+Episode 260	avg Score: 24.21
+Episode 270	avg Score: 25.96
+Episode 280	avg Score: 27.61
+Episode 290	avg Score: 28.81
+Episode 300	avg Score: 29.71
+Episode 303	avg Score: 30.06
+Environment solved in 303 episodes!	Average Score: 30.06

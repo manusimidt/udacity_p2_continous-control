@@ -128,8 +128,8 @@ def plot_scores(scores: [int], sma_window: int = 50) -> None:
 
 
 if __name__ == '__main__':
-    _env = UnityEnvironment(file_name='Reacher_Linux/Reacher.x86_64')
-
+    # _env = UnityEnvironment(file_name='Reacher_Linux/Reacher.x86_64')
+    _env = UnityEnvironment(file_name='Reacher_Windows_x86_64/Reacher.exe')
     # initialize seeds
     seed = 3
     random.seed(0)
@@ -147,12 +147,12 @@ if __name__ == '__main__':
                    buffer_size=1000000, batch_size=128)
 
     # with this boolean you can decide if you just want to watch an agent or train the agent yourself
-    watch_only = False
+    watch_only = True
     if watch_only:
         watch_agent_from_pth_file(_env, _brain_name, _agent, './checkpoint-actor.pth', './checkpoint-critic.pth')
     else:
         scores = train_agent(_env, _brain_name, _agent, n_episodes=500, max_steps=1500)
         watch_agent(_env, _brain_name, _agent)
-        plot_scores(scores=scores)
+        plot_scores(scores=scores, sma_window=10)
 
     _env.close()
