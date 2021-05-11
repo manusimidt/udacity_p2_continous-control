@@ -129,10 +129,6 @@ def plot_scores(scores: [int], sma_window: int = 50) -> None:
 if __name__ == '__main__':
     # _env = UnityEnvironment(file_name='Reacher_Linux/Reacher.x86_64')
     _env = UnityEnvironment(file_name='Reacher_Windows_x86_64/Reacher.exe')
-    # initialize seeds
-    seed = 3
-    random.seed(seed)
-    torch.manual_seed(seed)
 
     # get the default brain
     _brain_name = _env.brain_names[0]
@@ -143,7 +139,7 @@ if __name__ == '__main__':
 
     _agent = Agent(_state_size, _action_size,
                    gamma=0.99, lr_actor=0.0002, lr_critic=0.0003, tau=0.002, weight_decay=0.0001,
-                   buffer_size=1000000, batch_size=128)
+                   buffer_size=1000000, batch_size=128, seed=0)
 
     # with this boolean you can decide if you just want to watch an agent or train the agent yourself
     watch_only = False

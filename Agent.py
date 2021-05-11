@@ -37,7 +37,7 @@ class Agent:
     def __init__(self, state_size: int, action_size: int,
                  gamma: float = 0.99, lr_actor: float = 0.001, lr_critic: float = 0.003,
                  weight_decay: float = 0.0001, tau: float = 0.001,
-                 buffer_size: int = 100000, batch_size: int = 64):
+                 buffer_size: int = 100000, batch_size: int = 64, seed:int=0):
         """
         :param state_size: how many states does the agent get as input (input size of neural networks)
         :param action_size: from how many actions can the agent choose
@@ -49,6 +49,7 @@ class Agent:
         :param buffer_size: size of replay buffer
         :param batch_size: size of learning batch (mini-batch)
         """
+        random.seed(seed)
         self.tau = tau
         self.gamma = gamma
 

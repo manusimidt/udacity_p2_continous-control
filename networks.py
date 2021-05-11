@@ -3,6 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 
+torch.manual_seed(3)
+
 
 def hidden_init(layer) -> tuple:
     fan_in = layer.weight.data.size()[0]
