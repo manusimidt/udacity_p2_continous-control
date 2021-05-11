@@ -58,7 +58,7 @@ def train_agent(env: UnityEnvironment, brain_name: str, agent: Agent, n_episodes
 
         # the environment will end the episode after n steps, thus no manual termination of the episode is needed
         for a in range(max_steps):
-            action: int = agent.act(state)
+            action: int = agent.act(state, add_noise=False)
             env_info = env.step(action)[brain_name]
             next_state = env_info.vector_observations[0]
             reward = env_info.rewards[0]
@@ -132,10 +132,10 @@ if __name__ == '__main__':
     _state_size: int = 33
 
     _agent = Agent(_state_size, _action_size,
-                   gamma=0.992, lr_actor=0.0002, lr_critic=0.0006, tau=0.002, weight_decay=0.0001,
+                   gamma=0.99, lr_actor=0.0002, lr_critic=0.0003, tau=0.002, weight_decay=0.0001,
                    buffer_size=1000000, batch_size=128)
 
-    scores = train_agent(_env, _brain_name, _agent, n_episodes=900)
+    scores = train_agent(_env, _brain_name, _agent, n_episodes=500, max_steps=1500)
     watch_agent(_env, _brain_name, _agent)
     plot_scores(scores=scores)
 

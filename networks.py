@@ -38,7 +38,7 @@ class CriticNetwork(nn.Module):
         self.fc2 = nn.Linear(in_features=fc1_size + action_size, out_features=fc2_size)
         self.fc3 = nn.Linear(in_features=fc2_size, out_features=1)
         self.reset_weights()
-        
+
     def forward(self, state, action):
         x = F.relu(self.fc1(state))
         x = torch.cat((x, action.float()), dim=1)

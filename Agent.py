@@ -56,10 +56,12 @@ class Agent:
         self.actor_local = ActorNetwork(state_size, action_size).to(device)
         self.actor_target = ActorNetwork(state_size, action_size).to(device)
         self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=lr_actor)
+        print(self.actor_local)
 
         self.critic_local = CriticNetwork(state_size, action_size).to(device)
         self.critic_target = CriticNetwork(state_size, action_size).to(device)
         self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=lr_critic, weight_decay=weight_decay)
+        print(self.critic_local)
 
         self.memory = ReplayBuffer(action_size, buffer_size, batch_size)
         # this would probably also work with Gaussian noise instead of Ornstein-Uhlenbeck process
