@@ -11,6 +11,8 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 
+torch.manual_seed(3)
+
 """
 For some reason the pytorch function .to(device) takes forever to execute.
 Probably some issue between my cuda version and the pytorch version (0.4.0) that unityagents requires
@@ -37,7 +39,7 @@ class Agent:
     def __init__(self, state_size: int, action_size: int,
                  gamma: float = 0.99, lr_actor: float = 0.001, lr_critic: float = 0.003,
                  weight_decay: float = 0.0001, tau: float = 0.001,
-                 buffer_size: int = 100000, batch_size: int = 64, seed:int=0):
+                 buffer_size: int = 100000, batch_size: int = 64, seed: int = 0):
         """
         :param state_size: how many states does the agent get as input (input size of neural networks)
         :param action_size: from how many actions can the agent choose
