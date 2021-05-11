@@ -73,7 +73,8 @@ def train_agent(env: UnityEnvironment, brain_name: str, agent: Agent, n_episodes
 
         scores_window.append(score)  # save most recent score
         scores.append(score)  # save most recent score
-
+        
+        print('\rEpisode {}\tavg Score: {:.2f}'.format(i_episode, np.mean(scores_window)), end="")
         if i_episode % 10 == 0:
             print(f"""Episode {i_episode}: Average Score: {np.mean(scores_window):.2f}""")
 
@@ -120,7 +121,7 @@ if __name__ == '__main__':
     _env = UnityEnvironment(file_name='Reacher_Linux/Reacher.x86_64')
 
     # initialize seeds
-    seed = 0
+    seed = 7
     random.seed(0)
     torch.manual_seed(seed)
 

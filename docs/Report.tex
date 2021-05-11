@@ -55,12 +55,56 @@
 
 
     \section{Results}\label{sec:results}
-    This model took a long time to train\ldots
+    After training for approximately an hour I was able to achieve a mean score of 30 over 100 consecutive episodes.
+    Figure 1 shows the scores received in the different episodes.
+
+    \begin{figure}[H]
+        \includegraphics[width=\linewidth]{img/scores}
+        \caption{Scores that the agent achieved per episode}
+        \label{fig:scores}
+    \end{figure}
+
+    I achieved these scores using the following \textbf{hyper parameters}:
+    \begin{center}
+        \begin{tabular}{||l c l||}
+            \hline
+            Parameter    & Value      & Description \\ [0.5ex]
+            \hline\hline
+            gamma        & 0.99       & discount factor                                                           \\
+            \hline
+            lr\_actor    & 0.0002     & learning rate of the actor network                                        \\
+            \hline
+            lr\_critic   & 0.0003     & learning rate of the critic network                                       \\
+            \hline
+            tau          & 0.002      & update factor for soft update                                             \\
+            \hline
+            buffer\_size & $1*10^{6}$ & Size of the experience replay buffer                                      \\
+            \hline
+            batch\_size  & 128        & minibatch size (how many samples are drawn from the buffer when learning) \\
+            \hline
+        \end{tabular}
+    \end{center}
 
 
     \section{Ideas for future improvements}\label{sec:ideas}
     Parallelize the training to multiple agents at the same time.
     This could for example be implemented with the advantage actor critic (A2C) Algorithm where multiple agents share the same network.
 
+    \pagebreak
+
+
+    \section{Useful Formulas}\label{sec:formulars}
+    \textbf{Update rule for actor:}
+    $$\nabla_{\theta^{\mu}}J\approx \mathbb{E}_{s_{t}\sim p^{\beta}}[\nabla_{\theta^{\mu}}Q(s,a|\theta^{Q})|s=s_{t}, a=\mu(s_{t}|\theta^{\mu})]$$
+    The gradient ($\nabla$) of the cost function $J$ with respect to the network parameters $\theta$ of our actor network (denoted by $\mu$).
+    \\\\
+    \textbf{Update rule for critic:}
+    $$L=\frac{1}{n}\sum_{i}{(y_{i}-Q(s_{i}, a_{i}|\theta^{Q}))^{2}}$$
+    The critic is trying to minimize this loss function.
+    \\\\
+    \textbf{Soft Update:}
+    $$\theta^{Q'}\leftarrow \tau\theta^{Q}+(1-\tau)+\theta^{Q'}$$
+    $$\theta^{\mu'}\leftarrow \tau\theta^{\mu}+(1-\tau)+\theta^{\mu'}$$
+    Where $\theta^{Q}$ are the weights of the local critic network and $\theta^{\mu}$ is the local actor network
 
 \end{document}

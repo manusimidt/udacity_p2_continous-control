@@ -63,6 +63,9 @@ class Agent:
         self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=lr_critic, weight_decay=weight_decay)
         print(self.critic_local)
 
+        self.hard_update(self.actor_local, self.actor_target)
+        self.hard_update(self.critic_local, self.critic_target)
+
         self.memory = ReplayBuffer(action_size, buffer_size, batch_size)
         # this would probably also work with Gaussian noise instead of Ornstein-Uhlenbeck process
         self.noise = OUNoise(action_size)
@@ -83,7 +86,7 @@ class Agent:
         state = torch.from_numpy(state).float().to(device)
         self.actor_local.eval()
         with torch.no_grad():
-            action = self.actor_local(state).cpu().data.numpy()
+            action = self.actor_local.forward(state).cpu().data.numpy()
         self.actor_local.train()
         if add_noise:
             action += self.noise.sample()
@@ -130,22 +133,27 @@ class Agent:
         for target_param, local_param in zip(target_model.parameters(), local_model.parameters()):
             target_param.data.copy_(self.tau * local_param.data + (1.0 - self.tau) * target_param.data)
 
+    def hard_update(self, local_model, target_model):
+        """Copy the weights and biases from the local to the target network"""
+        for target_param, param in zip(target_model.parameters(), local_model.parameters()):
+            target_param.data.copy_(param.data)
+
     def reset(self):
         self.noise.reset()
 
 
 class ReplayBuffer:
-    """ FiFo buffer storing experience tuples of the agent """
+    """Fixed-size buffer to store experience tuples."""
 
-    def __init__(self, action_size: int, buffer_size: int, batch_size: int):
-        """
-        Initialize Buffer
-        :param action_size: dimension of each action
-        :param buffer_size: maximum amount of experiences the buffer saves
-        :param batch_size: size of each training batch
+    def __init__(self, action_size, buffer_size, batch_size):
+        """Initialize a ReplayBuffer object.
+        Params
+        ======
+            buffer_size (int): maximum size of buffer
+            batch_size (int): size of each training batch
         """
         self.action_size = action_size
-        self.memory = deque(maxlen=buffer_size)
+        self.memory = deque(maxlen=buffer_size)  # internal memory (deque)
         self.batch_size = batch_size
         self.experience = namedtuple("Experience", field_names=["state", "action", "reward", "next_state", "done"])
 
@@ -154,22 +162,19 @@ class ReplayBuffer:
         e = self.experience(state, action, reward, next_state, done)
         self.memory.append(e)
 
-    def reset(self):
-        self.memory.clear()
-
     def sample(self):
         """Randomly sample a batch of experiences from memory."""
         experiences = random.sample(self.memory, k=self.batch_size)
 
         states = torch.from_numpy(np.vstack([e.state for e in experiences if e is not None])).float().to(device)
-        actions = torch.from_numpy(np.vstack([e.action for e in experiences if e is not None])).long().to(device)
+        actions = torch.from_numpy(np.vstack([e.action for e in experiences if e is not None])).float().to(device)
         rewards = torch.from_numpy(np.vstack([e.reward for e in experiences if e is not None])).float().to(device)
         next_states = torch.from_numpy(np.vstack([e.next_state for e in experiences if e is not None])).float().to(
             device)
         dones = torch.from_numpy(np.vstack([e.done for e in experiences if e is not None]).astype(np.uint8)).float().to(
             device)
 
-        return states, actions, rewards, next_states, dones
+        return (states, actions, rewards, next_states, dones)
 
     def __len__(self):
         """Return the current size of internal memory."""
