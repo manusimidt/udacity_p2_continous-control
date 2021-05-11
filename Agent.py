@@ -28,6 +28,7 @@ Probably some issue between my cuda version and the pytorch version (0.4.0) that
 """
 # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 device = torch.device('cpu')
+print(f"Using device {device}")
 
 
 class Agent:

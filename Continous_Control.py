@@ -83,7 +83,6 @@ def train_agent(env: UnityEnvironment, brain_name: str, agent: Agent, n_episodes
         scores_window.append(score)  # save most recent score
         scores.append(score)  # save most recent score
 
-        print('\rEpisode {}\tavg Score: {:.2f}'.format(i_episode, np.mean(scores_window)), end="")
         if i_episode % 10 == 0:
             print(f"""Episode {i_episode}: Average Score: {np.mean(scores_window):.2f}""")
 
@@ -132,7 +131,7 @@ if __name__ == '__main__':
     _env = UnityEnvironment(file_name='Reacher_Windows_x86_64/Reacher.exe')
     # initialize seeds
     seed = 3
-    random.seed(0)
+    random.seed(seed)
     torch.manual_seed(seed)
 
     # get the default brain
@@ -147,7 +146,7 @@ if __name__ == '__main__':
                    buffer_size=1000000, batch_size=128)
 
     # with this boolean you can decide if you just want to watch an agent or train the agent yourself
-    watch_only = True
+    watch_only = False
     if watch_only:
         watch_agent_from_pth_file(_env, _brain_name, _agent, './checkpoint-actor.pth', './checkpoint-critic.pth')
     else:
