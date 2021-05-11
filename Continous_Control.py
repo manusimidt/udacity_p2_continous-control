@@ -10,6 +10,15 @@ import matplotlib.pyplot as plt
 from Agent import Agent
 
 
+def watch_agent_from_pth_file(env: UnityEnvironment, brain_name: str, agent: Agent, file_path_actor: str,
+                              file_path_critic: str) -> None:
+    agent.actor_local.load_state_dict(torch.load(file_path_actor))
+    agent.critic_local.load_state_dict(torch.load(file_path_critic))
+    agent.actor_local.eval()
+    agent.critic_local.eval()
+    watch_agent(env, brain_name, agent)
+
+
 def watch_agent(env: UnityEnvironment, brain_name: str, agent: Agent) -> None:
     """
     Shows agent simulation
@@ -73,7 +82,7 @@ def train_agent(env: UnityEnvironment, brain_name: str, agent: Agent, n_episodes
 
         scores_window.append(score)  # save most recent score
         scores.append(score)  # save most recent score
-        
+
         print('\rEpisode {}\tavg Score: {:.2f}'.format(i_episode, np.mean(scores_window)), end="")
         if i_episode % 10 == 0:
             print(f"""Episode {i_episode}: Average Score: {np.mean(scores_window):.2f}""")
@@ -81,7 +90,8 @@ def train_agent(env: UnityEnvironment, brain_name: str, agent: Agent, n_episodes
         if np.mean(scores_window) >= 30.0:
             print('\nEnvironment solved in {:d} episodes!\tAverage Score: {:.2f}'.format(i_episode,
                                                                                          np.mean(scores_window)))
-            torch.save(agent.actor_local.state_dict(), 'checkpoint.pth')
+            torch.save(agent.actor_local.state_dict(), 'checkpoint-actor.pth')
+            torch.save(agent.critic_local.state_dict(), 'checkpoint-critic.pth')
             break
     return scores
 
@@ -121,7 +131,7 @@ if __name__ == '__main__':
     _env = UnityEnvironment(file_name='Reacher_Linux/Reacher.x86_64')
 
     # initialize seeds
-    seed = 7
+    seed = 3
     random.seed(0)
     torch.manual_seed(seed)
 
@@ -136,8 +146,13 @@ if __name__ == '__main__':
                    gamma=0.99, lr_actor=0.0002, lr_critic=0.0003, tau=0.002, weight_decay=0.0001,
                    buffer_size=1000000, batch_size=128)
 
-    scores = train_agent(_env, _brain_name, _agent, n_episodes=500, max_steps=1500)
-    watch_agent(_env, _brain_name, _agent)
-    plot_scores(scores=scores)
+    # with this boolean you can decide if you just want to watch an agent or train the agent yourself
+    watch_only = False
+    if watch_only:
+        watch_agent_from_pth_file(_env, _brain_name, _agent, './checkpoint-actor.pth', './checkpoint-critic.pth')
+    else:
+        scores = train_agent(_env, _brain_name, _agent, n_episodes=500, max_steps=1500)
+        watch_agent(_env, _brain_name, _agent)
+        plot_scores(scores=scores)
 
     _env.close()
