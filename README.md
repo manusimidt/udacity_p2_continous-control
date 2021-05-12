@@ -114,6 +114,9 @@ The environment is considered solved, when the average (over 100 episodes) of th
    ```
 
 5. Run the `Continous_Control.py` file
+   ```bash
+   python Continous_Control.py
+   ```
 
 ### My implementation
 
