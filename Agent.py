@@ -11,8 +11,6 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 
-torch.manual_seed(3)
-
 """
 For some reason the pytorch function .to(device) takes forever to execute.
 Probably some issue between my cuda version and the pytorch version (0.4.0) that unityagents requires
@@ -30,7 +28,6 @@ Probably some issue between my cuda version and the pytorch version (0.4.0) that
 """
 # device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 device = torch.device('cpu')
-print(f"Using device {device}")
 
 
 class Agent:
@@ -52,6 +49,7 @@ class Agent:
         :param batch_size: size of learning batch (mini-batch)
         """
         random.seed(seed)
+        torch.manual_seed(seed)
         self.state_size = state_size
         self.action_size = action_size
 
@@ -76,9 +74,9 @@ class Agent:
         self.hard_update(self.actor_local, self.actor_target)
         self.hard_update(self.critic_local, self.critic_target)
 
-        self.memory = ReplayBuffer(action_size, buffer_size, batch_size, seed)
+        self.memory = ReplayBuffer(action_size, buffer_size, batch_size)
         # this would probably also work with Gaussian noise instead of Ornstein-Uhlenbeck process
-        self.noise = OUNoise(action_size, seed)
+        self.noise = OUNoise(action_size)
 
         self.log()
 
@@ -173,14 +171,13 @@ class Agent:
 class ReplayBuffer:
     """Fixed-size buffer to store experience tuples."""
 
-    def __init__(self, action_size, buffer_size, batch_size, seed):
+    def __init__(self, action_size, buffer_size, batch_size):
         """Initialize a ReplayBuffer object.
         Params
         ======
             buffer_size (int): maximum size of buffer
             batch_size (int): size of each training batch
         """
-        random.seed(seed)
         self.action_size = action_size
         self.memory = deque(maxlen=buffer_size)  # internal memory (deque)
         self.batch_size = batch_size
@@ -214,9 +211,8 @@ class ReplayBuffer:
 class OUNoise:
     """Ornstein-Uhlenbeck process."""
 
-    def __init__(self, size, seed, mu=0., theta=0.15, sigma=0.2):
+    def __init__(self, size, mu=0., theta=0.15, sigma=0.2):
         """Initialize parameters and noise process."""
-        random.seed(seed)
         self.mu = mu * np.ones(size)
         self.theta = theta
         self.sigma = sigma
