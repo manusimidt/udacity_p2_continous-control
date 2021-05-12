@@ -82,7 +82,8 @@ def train_agent(env: UnityEnvironment, brain_name: str, agent: Agent, n_episodes
         scores_window.append(score)  # save most recent score
         scores.append(score)  # save most recent score
 
-        if i_episode % 5 == 0:
+        # print('\rEpisode {}\tavg Score: {:.2f}'.format(i_episode, np.mean(scores_window)), end="")
+        if i_episode % 10 == 0:
             print(f"""Episode {i_episode}: Average Score: {np.mean(scores_window):.2f}""")
 
         if np.mean(scores_window) >= 30.0:
@@ -127,9 +128,7 @@ def plot_scores(scores: [int], sma_window: int = 50) -> None:
 
 if __name__ == '__main__':
     # _env = UnityEnvironment(file_name='Reacher_Linux/Reacher.x86_64')
-    print("Loading Environment...")
     _env = UnityEnvironment(file_name='Reacher_Windows_x86_64/Reacher.exe')
-    print("Environment loaded")
 
     # get the default brain
     _brain_name = _env.brain_names[0]
@@ -140,7 +139,7 @@ if __name__ == '__main__':
 
     _agent = Agent(_state_size, _action_size,
                    gamma=0.99, lr_actor=0.0002, lr_critic=0.0003, tau=0.002, weight_decay=0.0001,
-                   buffer_size=1000000, batch_size=128, seed=0)
+                   buffer_size=1000000, batch_size=128)
 
     # with this boolean you can decide if you just want to watch an agent or train the agent yourself
     watch_only = False

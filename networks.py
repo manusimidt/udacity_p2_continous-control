@@ -3,6 +3,8 @@ import torch.nn as nn
 import torch.nn.functional as F
 import numpy as np
 
+torch.manual_seed(3)
+
 
 def hidden_init(layer) -> tuple:
     fan_in = layer.weight.data.size()[0]
@@ -11,9 +13,8 @@ def hidden_init(layer) -> tuple:
 
 
 class ActorNetwork(nn.Module):
-    def __init__(self, input_size: int, output_size: int, fc1_size: int = 128, fc2_size: int = 128, seed=0):
+    def __init__(self, input_size: int, output_size: int, fc1_size: int = 128, fc2_size: int = 128):
         super().__init__()
-        self.seed = torch.manual_seed(seed)
         self.fc1 = nn.Linear(in_features=input_size, out_features=fc1_size)
         self.fc2 = nn.Linear(in_features=fc1_size, out_features=fc2_size)
         self.fc3 = nn.Linear(in_features=fc2_size, out_features=output_size)
@@ -32,9 +33,8 @@ class ActorNetwork(nn.Module):
 
 class CriticNetwork(nn.Module):
 
-    def __init__(self, input_size: int, action_size: int, fc1_size: int = 128, fc2_size: int = 128, seed=0):
+    def __init__(self, input_size: int, action_size: int, fc1_size: int = 128, fc2_size: int = 128):
         super().__init__()
-        self.seed = torch.manual_seed(seed)
         self.fc1 = nn.Linear(in_features=input_size, out_features=fc1_size)
         # add the input_size because we will insert the action vector in this layer
         self.fc2 = nn.Linear(in_features=fc1_size + action_size, out_features=fc2_size)

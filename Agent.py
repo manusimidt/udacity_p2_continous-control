@@ -11,6 +11,7 @@ import torch
 import torch.nn.functional as F
 import torch.optim as optim
 
+random.seed(0)
 """
 For some reason the pytorch function .to(device) takes forever to execute.
 Probably some issue between my cuda version and the pytorch version (0.4.0) that unityagents requires
@@ -36,7 +37,7 @@ class Agent:
     def __init__(self, state_size: int, action_size: int,
                  gamma: float = 0.99, lr_actor: float = 0.001, lr_critic: float = 0.003,
                  weight_decay: float = 0.0001, tau: float = 0.001,
-                 buffer_size: int = 100000, batch_size: int = 64, seed: int = 0):
+                 buffer_size: int = 100000, batch_size: int = 64):
         """
         :param state_size: how many states does the agent get as input (input size of neural networks)
         :param action_size: from how many actions can the agent choose
@@ -48,28 +49,20 @@ class Agent:
         :param buffer_size: size of replay buffer
         :param batch_size: size of learning batch (mini-batch)
         """
-        random.seed(seed)
-        torch.manual_seed(seed)
-        self.state_size = state_size
-        self.action_size = action_size
-
-        self.gamma = gamma
-        self.lr_actor = lr_actor
-        self.lr_critic = lr_critic
-        self.weight_decay = weight_decay
-
         self.tau = tau
-        self.buffer_size = buffer_size
+        self.gamma = gamma
+
         self.batch_size = batch_size
-        self.seed = seed
 
-        self.actor_local = ActorNetwork(state_size, action_size, seed=seed).to(device)
-        self.actor_target = ActorNetwork(state_size, action_size, seed=seed).to(device)
+        self.actor_local = ActorNetwork(state_size, action_size).to(device)
+        self.actor_target = ActorNetwork(state_size, action_size).to(device)
         self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=lr_actor)
+        print(self.actor_local)
 
-        self.critic_local = CriticNetwork(state_size, action_size, seed=seed).to(device)
-        self.critic_target = CriticNetwork(state_size, action_size, seed=seed).to(device)
+        self.critic_local = CriticNetwork(state_size, action_size).to(device)
+        self.critic_target = CriticNetwork(state_size, action_size).to(device)
         self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=lr_critic, weight_decay=weight_decay)
+        print(self.critic_local)
 
         self.hard_update(self.actor_local, self.actor_target)
         self.hard_update(self.critic_local, self.critic_target)
@@ -77,8 +70,6 @@ class Agent:
         self.memory = ReplayBuffer(action_size, buffer_size, batch_size)
         # this would probably also work with Gaussian noise instead of Ornstein-Uhlenbeck process
         self.noise = OUNoise(action_size)
-
-        self.log()
 
     def step(self, experience: tuple):
         """
@@ -147,22 +138,6 @@ class Agent:
         """Copy the weights and biases from the local to the target network"""
         for target_param, param in zip(target_model.parameters(), local_model.parameters()):
             target_param.data.copy_(param.data)
-
-    def log(self):
-        """Logs all parameters of the agent to the console"""
-        print(self.actor_local)
-        print(self.critic_local)
-        print(f"state_size:     \t{self.state_size}")
-        print(f"action_size:    \t{self.action_size}")
-        print(f"gamma:          \t{self.gamma}")
-        print(f"lr_actor:       \t{self.lr_actor}")
-        print(f"lr_critic:      \t{self.lr_critic}")
-        print(f"weight_decay:   \t{self.weight_decay}")
-        print(f"tau:            \t{self.tau}")
-        print(f"tau:            \t{self.tau}")
-        print(f"batch_size:     \t{self.batch_size}")
-        print(f"buffer_size:    \t{self.buffer_size}")
-        print(f"seed:           \t{self.seed}")
 
     def reset(self):
         self.noise.reset()
