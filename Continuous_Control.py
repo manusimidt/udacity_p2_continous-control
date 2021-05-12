@@ -1,3 +1,4 @@
+import random
 from collections import deque
 
 import numpy as np
@@ -142,7 +143,7 @@ if __name__ == '__main__':
                    buffer_size=1000000, batch_size=128)
 
     # with this boolean you can decide if you just want to watch an agent or train the agent yourself
-    watch_only = False
+    watch_only = True
     if watch_only:
         watch_agent_from_pth_file(_env, _brain_name, _agent, './checkpoint-actor.pth', './checkpoint-critic.pth')
     else:

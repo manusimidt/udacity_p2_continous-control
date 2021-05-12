@@ -8,11 +8,12 @@
 
 ### Links:
 
-- [Continuous_Control.ipynb](./Continuous_Control.ipynb)
+- [Continuous_Control.py](./Continuous_Control.py)
 - [Report.pdf](./docs/Report.pdf)
 - Saved model weights
     - [Actor network weights](checkpoint-actor.pth)
     - [Critic network weights](checkpoint-critic.pth)
+- [Console logs](./docs/result.log)
 
 ### Introduction
 
@@ -62,7 +63,7 @@ agents). Specifically,
 
 The environment is considered solved, when the average (over 100 episodes) of those average scores is at least +30.
 
-### Getting Started
+### Installation Instructions
 
 1. Download the environment from one of the links below. You need only select the environment that matches your
    operating system:
@@ -102,21 +103,8 @@ The environment is considered solved, when the average (over 100 episodes) of th
 2. Place the file in the DRLND GitHub repository, in the `p2_continuous-control/` folder, and unzip (or decompress) the
    file.
 
-### My implementation
 
-I have chosen the first Option, to train a single Agent using the Deep Deterministic Policy Gradient (DDPG) algorithm.
-The resulting trained agent looks like the following:
-
-![trained agent](./docs/img/trained-agent.gif)
-
-The scores per episode are shown in the following score plot:
-
-![score chart](./docs/img/scores.png)
-
-### Installation instructions:
-
-
-1. Create (and activate) a new environment with Python 3.6.
+3. Create (and activate) a new environment with Python 3.6.
 
     - __Linux__ or __Mac__:
    ```bash
@@ -128,7 +116,7 @@ The scores per episode are shown in the following score plot:
    conda create --name drlnd python=3.6 
    activate drlnd
    ``` 
-2. Install the dependencies:
+4. Install the dependencies:
    ```bash 
    pip install .
    pip install pandas
@@ -138,4 +126,35 @@ The scores per episode are shown in the following score plot:
    conda install pytorch=0.4.0 -c pytorch
    ```
 
-3. Run the `Continous_Control.py` file or start a jupyter server and run `Continous_Control.ipynd`
+5. Run the `Continous_Control.py` file
+
+### My implementation
+
+I have chosen the first Option, to train a single Agent using the Deep Deterministic Policy Gradient (DDPG) algorithm.
+The resulting trained agent looks like the following:
+
+![trained agent](./docs/img/trained-agent.gif)
+
+The training loop for the DDPG Agent can be found in [Continuous_Control.py](Continuous_Control.py). All hyperparameters
+can be defined by passing it into the constructor of the Agent class. The boolean `watch_only` can be used to either
+train or watch the agent.
+
+```python
+_agent = Agent(_state_size, _action_size,
+               gamma=0.99, lr_actor=0.0002, lr_critic=0.0003, tau=0.002, weight_decay=0.0001,
+               buffer_size=1000000, batch_size=128)
+
+# with this boolean you can decide if you just want to watch an agent or train the agent yourself
+watch_only = True
+if watch_only:
+    watch_agent_from_pth_file(_env, _brain_name, _agent, './checkpoint-actor.pth', './checkpoint-critic.pth')
+else:
+    scores = train_agent(_env, _brain_name, _agent, n_episodes=500, max_steps=1500)
+    watch_agent(_env, _brain_name, _agent)
+    plot_scores(scores=scores, sma_window=10)
+```
+
+After training the agent the following score chart should be plotted.
+
+![score chart](./docs/img/scores.png)
+

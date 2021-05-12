@@ -3,15 +3,14 @@ import random
 from collections import namedtuple, deque
 
 import copy
-from typing import Tuple
 
 from networks import ActorNetwork, CriticNetwork
-
 import torch
 import torch.nn.functional as F
 import torch.optim as optim
 
 random.seed(0)
+
 """
 For some reason the pytorch function .to(device) takes forever to execute.
 Probably some issue between my cuda version and the pytorch version (0.4.0) that unityagents requires
