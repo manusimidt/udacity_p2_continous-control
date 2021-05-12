@@ -1,0 +1,47 @@
+ActorNetwork(
+  (fc1): Linear(in_features=33, out_features=128, bias=True)
+  (fc2): Linear(in_features=128, out_features=128, bias=True)
+  (fc3): Linear(in_features=128, out_features=4, bias=True)
+)
+CriticNetwork(
+  (fc1): Linear(in_features=33, out_features=128, bias=True)
+  (fc2): Linear(in_features=132, out_features=128, bias=True)
+  (fc3): Linear(in_features=128, out_features=1, bias=True)
+)
+Episode 10: Average Score: 0.35
+Episode 20: Average Score: 0.70
+Episode 30: Average Score: 1.07
+Episode 40: Average Score: 1.42
+Episode 50: Average Score: 1.84
+Episode 60: Average Score: 2.10
+Episode 70: Average Score: 2.16
+Episode 80: Average Score: 2.40
+Episode 90: Average Score: 2.52
+Episode 100: Average Score: 2.89
+Episode 110: Average Score: 3.36
+Episode 120: Average Score: 3.89
+Episode 130: Average Score: 4.41
+Episode 140: Average Score: 4.78
+Episode 150: Average Score: 5.11
+Episode 160: Average Score: 5.39
+Episode 170: Average Score: 5.71
+Episode 180: Average Score: 6.01
+Episode 190: Average Score: 6.43
+Episode 200: Average Score: 6.56
+Episode 210: Average Score: 6.74
+Episode 220: Average Score: 6.86
+Episode 230: Average Score: 6.74
+Episode 240: Average Score: 6.91
+Episode 250: Average Score: 7.26
+Episode 260: Average Score: 7.67
+Episode 270: Average Score: 8.12
+Episode 280: Average Score: 8.21
+Episode 290: Average Score: 8.39
+Episode 300: Average Score: 8.50
+Episode 310: Average Score: 8.74
+Episode 320: Average Score: 8.86
+Episode 330: Average Score: 9.01
+Episode 340: Average Score: 8.93
+Episode 350: Average Score: 8.47
+Episode 360: Average Score: 8.14
+Episode 370: Average Score: 7.76
