@@ -52,27 +52,35 @@ class Agent:
         :param batch_size: size of learning batch (mini-batch)
         """
         random.seed(seed)
-        self.tau = tau
+        self.state_size = state_size
+        self.action_size = action_size
+
         self.gamma = gamma
+        self.lr_actor = lr_actor
+        self.lr_critic = lr_critic
+        self.weight_decay = weight_decay
 
+        self.tau = tau
+        self.buffer_size = buffer_size
         self.batch_size = batch_size
+        self.seed = seed
 
-        self.actor_local = ActorNetwork(state_size, action_size).to(device)
-        self.actor_target = ActorNetwork(state_size, action_size).to(device)
+        self.actor_local = ActorNetwork(state_size, action_size, seed=seed).to(device)
+        self.actor_target = ActorNetwork(state_size, action_size, seed=seed).to(device)
         self.actor_optimizer = optim.Adam(self.actor_local.parameters(), lr=lr_actor)
-        print(self.actor_local)
 
-        self.critic_local = CriticNetwork(state_size, action_size).to(device)
-        self.critic_target = CriticNetwork(state_size, action_size).to(device)
+        self.critic_local = CriticNetwork(state_size, action_size, seed=seed).to(device)
+        self.critic_target = CriticNetwork(state_size, action_size, seed=seed).to(device)
         self.critic_optimizer = optim.Adam(self.critic_local.parameters(), lr=lr_critic, weight_decay=weight_decay)
-        print(self.critic_local)
 
         self.hard_update(self.actor_local, self.actor_target)
         self.hard_update(self.critic_local, self.critic_target)
 
-        self.memory = ReplayBuffer(action_size, buffer_size, batch_size)
+        self.memory = ReplayBuffer(action_size, buffer_size, batch_size, seed)
         # this would probably also work with Gaussian noise instead of Ornstein-Uhlenbeck process
-        self.noise = OUNoise(action_size)
+        self.noise = OUNoise(action_size, seed)
+
+        self.log()
 
     def step(self, experience: tuple):
         """
@@ -142,6 +150,22 @@ class Agent:
         for target_param, param in zip(target_model.parameters(), local_model.parameters()):
             target_param.data.copy_(param.data)
 
+    def log(self):
+        """Logs all parameters of the agent to the console"""
+        print(self.actor_local)
+        print(self.critic_local)
+        print(f"state_size:     \t{self.state_size}")
+        print(f"action_size:    \t{self.action_size}")
+        print(f"gamma:          \t{self.gamma}")
+        print(f"lr_actor:       \t{self.lr_actor}")
+        print(f"lr_critic:      \t{self.lr_critic}")
+        print(f"weight_decay:   \t{self.weight_decay}")
+        print(f"tau:            \t{self.tau}")
+        print(f"tau:            \t{self.tau}")
+        print(f"batch_size:     \t{self.batch_size}")
+        print(f"buffer_size:    \t{self.buffer_size}")
+        print(f"seed:           \t{self.seed}")
+
     def reset(self):
         self.noise.reset()
 
@@ -149,13 +173,14 @@ class Agent:
 class ReplayBuffer:
     """Fixed-size buffer to store experience tuples."""
 
-    def __init__(self, action_size, buffer_size, batch_size):
+    def __init__(self, action_size, buffer_size, batch_size, seed):
         """Initialize a ReplayBuffer object.
         Params
         ======
             buffer_size (int): maximum size of buffer
             batch_size (int): size of each training batch
         """
+        random.seed(seed)
         self.action_size = action_size
         self.memory = deque(maxlen=buffer_size)  # internal memory (deque)
         self.batch_size = batch_size
@@ -189,8 +214,9 @@ class ReplayBuffer:
 class OUNoise:
     """Ornstein-Uhlenbeck process."""
 
-    def __init__(self, size, mu=0., theta=0.15, sigma=0.2):
+    def __init__(self, size, seed, mu=0., theta=0.15, sigma=0.2):
         """Initialize parameters and noise process."""
+        random.seed(seed)
         self.mu = mu * np.ones(size)
         self.theta = theta
         self.sigma = sigma
